@@ -335,10 +335,116 @@ class TreeModel(QtCore.QAbstractItemModel):
 
 
 
+class LabeledCircleWidget(QtWidgets.QWidget):
+        
+
+    def __init__(self, title ='', factor = 1):
+
+        super(LabeledCircleWidget, self).__init__()
+
+        self._title = title
+
+        self.title_label = QtWidgets.QLabel(self.title)
+
+        self.value_label = QtWidgets.QLineEdit('')
+
+        self.value_label.setValidator(QtGui.QDoubleValidator())
+
+        self.value_label.returnPressed.connect(self.update_value)
+
+        self.value_label.setFixedWidth(50)
+
+        self.dial = QtWidgets.QDial()
+
+        self.dial.valueChanged.connect(self.dialer_changed)
+
+        self.dial.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+
+        self.value_label.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+
+        self.v_layout = QtWidgets.QVBoxLayout()
+
+        self.h_layout = QtWidgets.QHBoxLayout()
+
+        self.h_layout.addWidget(self.dial)
+
+        self.h_layout.addWidget(self.value_label)
+
+        self.v_layout.addWidget(self.title_label)
+
+        self.v_layout.addLayout(self.h_layout)
+
+        self.setLayout(self.v_layout)
+
+        self.valueChanged = self.dial.valueChanged
+
+        self.setMinimum = self.dial.setMinimum
+
+        self.setMaximum = self.dial.setMaximum
+
+        self.setValue = self.dial.setValue
+
+        self.value = self.dial.value
+
+        # self.setSingleStep = self.slider.setSingleStep
+
+        self.setEnabled = self.dial.setEnabled
+
+        self.setRange = self.dial.setRange
+
+        self.factor = factor
+
+        self.value_changed(self.dial.value())
+
+
+
+    def dialer_changed(self):
+
+        getValue = self.dial.value()
+
+        self.label.setText(" : " + str(getValue))
+
+
+
+    @property
+
+    def title(self):
+
+        return self._title
+
+
+
+    @title.setter
+
+    def title(self, value):
+
+        self._title = value
+
+        self.title_label.setText(value)
+
+
+    def update_value(self):
+
+        try:
+
+            self.dial.setValue(int(float(self.value_label.text())))
+
+        except ValueError:
+
+            pass
+
+
+
+    def value_changed(self, value: int) -> None:
+
+        self.value_label.setText(str(value))
+
+
+
+
+
 
 class LabeledSlider(QtWidgets.QWidget):
-
-
 
     def __init__(self, title='', factor=1) -> None:
 
@@ -475,8 +581,6 @@ class EditViewBox(ViewBox):
         # y = v_range[1][0] + y
 
         self.cell_select.emit(x, y, v_range[0][0], v_range[1][0])
-
-
 
         super().mouseClickEvent(ev)
 

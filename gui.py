@@ -24,7 +24,7 @@ import json
 
 from pathlib import Path
 
-from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage
+from controlsV1 import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage, LabeledCircleWidget
 
 from atlas import read_ontology, id_colors, color_atlas, get_atlas
 
@@ -101,10 +101,16 @@ class Viewer(QtWidgets.QMainWindow):
         self.edit_menu.addAction('&Clear transformation', self.clear_transf, QtCore.Qt.CTRL + QtCore.Qt.ALT + QtCore.Qt.Key_C)
 
         self.edit_menu.addAction('Clear cells', self.clear_cells)
+        
+        self.help_menu = QtWidgets.QMenu('&Help', self)
+
+        self.help_menu.addAction('&Manuel', self.help, QtCore.Qt.CTRL + QtCore.Qt.Key_H)
 
         self.menuBar().addMenu(self.file_menu)
 
         self.menuBar().addMenu(self.edit_menu)
+
+        self.menuBar().addMenu(self.help_menu)
 
 
 
@@ -132,6 +138,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         # LAYOUTS
 
+	    #sépare ecran noir et menu scroll
         self.h_splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
         self.right_widget = QtWidgets.QWidget(self)
@@ -154,13 +161,13 @@ class Viewer(QtWidgets.QMainWindow):
 
         # Slider for z and c -stack and zoom level
 
-        self.z_sl = LabeledSlider('Z slice')
+        #self.z_sl = LabeledSlider('Z slice')
 
-        self.z_sl.setSingleStep(1)
+        #self.z_sl.setSingleStep(1)
 
-        self.z_sl.setEnabled(False)
+        #self.z_sl.setEnabled(False)
 
-        self.z_sl.valueChanged.connect(self.z_change)
+        #self.z_sl.valueChanged.connect(self.z_change)
 
         self.channel_sl = LabeledSlider('Channel')
 
@@ -170,15 +177,15 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.channel_sl.setEnabled(False)
 
-        self.zoom_sl = LabeledSlider('Resolution level')
+        # self.zoom_sl = LabeledSlider('Resolution level')
 
-        self.zoom_sl.valueChanged.connect(self.zoom_change)
+        # self.zoom_sl.valueChanged.connect(self.zoom_change)
 
-        self.zoom_sl.setSingleStep(1)
+        # self.zoom_sl.setSingleStep(1)
 
-        self.zoom_sl.setRange(0, 4)
+        # self.zoom_sl.setRange(0, 4)
 
-        self.zoom_sl.setEnabled(False)
+        # self.zoom_sl.setEnabled(False)
 
         self.brain_sl = LabeledSlider('Brain slice')
 
@@ -243,12 +250,13 @@ class Viewer(QtWidgets.QMainWindow):
         # self.trans_sl = LabeledSlider('Translation')
 
         # Transformation sliders
+        
+        # Circle widget to rotate the image
+        self.rot_sl = LabeledCircleWidget('Rotation angle')#, factor = 10)
 
-        self.rot_sl = LabeledSlider('Rotation angle', factor=10)
+        self.rot_sl.setRange(-180, 180)
 
-        self.rot_sl.setRange(-1800, 1800)
-
-        self.rot_sl.setSingleStep(1)
+        #self.rot_sl.setSingleStep(1)
 
         self.rot_sl.valueChanged.connect(self.sl_rot_changed)
 
@@ -322,6 +330,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.atlas_image.setCompositionMode(QtGui.QPainter.CompositionMode_Plus)
 
+	    # Sensibilité du pointeur
         self.atlas_image.setZValue(10)
 
         self.zoom_image.setZValue(10)
@@ -362,17 +371,17 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.vb_anat.addItem(self.cell_scatter)
 
-        self.vb_atlas = self.g_layout.addViewBox(row=1, col=0)
+        # self.vb_atlas = self.g_layout.addViewBox(row=1, col=0)
 
-        self.vb_atlas.setAspectLocked()
+        # self.vb_atlas.setAspectLocked()
 
-        self.vb_atlas.invertY()
+        # self.vb_atlas.invertY()
 
-        self.vb_atlas.addItem(self.template_image)
+        # self.vb_atlas.addItem(self.template_image)
 
-        self.vb_anat.setXLink(self.vb_atlas)
+        # self.vb_anat.setXLink(self.vb_atlas)
 
-        self.vb_anat.setYLink(self.vb_atlas)
+        # self.vb_anat.setYLink(self.vb_atlas)
 
         # Zoom inset on the high quality image
 
@@ -383,16 +392,17 @@ class Viewer(QtWidgets.QMainWindow):
         self.vb_inset.invertY()
 
         self.vb_inset.setAspectLocked()
+	
+	    # Modification du pointeur
+        cursor_pen = pg.mkPen(color=(242, 142, 85), width=2)
 
-        cursor_pen = pg.mkPen(color=(255, 222, 17), width=2)
+        self._h_line_l = QtWidgets.QGraphicsLineItem(0, 2, 2, 2)
 
-        self._h_line_l = QtWidgets.QGraphicsLineItem(0, 2, 1, 2)
-
-        self._h_line_r = QtWidgets.QGraphicsLineItem(3, 2, 4, 2)
+        self._h_line_r = QtWidgets.QGraphicsLineItem(1, 2, 4, 2)
 
         self._v_line_u = QtWidgets.QGraphicsLineItem(2, 3, 2, 4)
 
-        self._v_line_d = QtWidgets.QGraphicsLineItem(2, 0, 2, 1)
+        self._v_line_d = QtWidgets.QGraphicsLineItem(2, 0, 2, 3)
 
         self._h_line_l.setParentItem(self.zoom_image)
 
@@ -416,23 +426,26 @@ class Viewer(QtWidgets.QMainWindow):
 
         # self.vb_atlas.addItem(self._h_line)
 
+
         # LAYOUT setup
 
         self.right_widget.setLayout(self.v_layout_right)
 
         self.v_layout_right.addWidget(self.tree)
 
-        self.v_layout_right.addWidget(self.z_sl)
+        # self.v_layout_right.addWidget(self.z_sl)
 
         self.v_layout_right.addWidget(self.channel_sl)
 
-        self.v_layout_right.addWidget(self.zoom_sl)
+        # self.v_layout_right.addWidget(self.zoom_sl)
 
         self.v_layout_right.addWidget(self.brain_sl)
 
         self.v_layout_right.addWidget(self.lum_sl)
 
         self.v_layout_right.addWidget(self.contrast_sl)
+
+        #self.v_layout_right.addWidget(self.image_zoom)
 
         self.h_atlas.addWidget(self.orientation_cb)
 
@@ -446,7 +459,8 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.v_layout_right.addWidget(self.rot_sl)
 
-        self.v_layout_right.addWidget(self.scale_sl)
+        # Plus besoin d'afficher le widget pour modifier la résolution étant donné que la valeur est fixée à 1
+        # self.v_layout_right.addWidget(self.scale_sl)
 
         self.h_layout_buttons.addWidget(self.fliplr_pb)
 
@@ -471,6 +485,7 @@ class Viewer(QtWidgets.QMainWindow):
 
 
         # Some shortcuts
+        # Déplacement de slice en slice avec les flèches gauche et droite
 
         atlas_fwd = QtWidgets.QShortcut(QtCore.Qt.Key_Right, self.main_widget)
 
@@ -671,6 +686,11 @@ class Viewer(QtWidgets.QMainWindow):
         pass
 
 
+    def help_menu(self):
+
+        pass
+
+
 
 
 
@@ -718,6 +738,8 @@ class AtlasExplorer(Viewer):
 
         self.transf_raw = self._transf_raw
 
+        # Modifie la taille de la croix à l'ouverture, mais se réinitialise à l'ouverture de l'image.
+        # Néanmoins, la fenêtre est plus petite, mais la sélection n'est plus la même (ne pointe plus sur la même chose)
         self._raw_inset = np.zeros((5, 5), dtype=np.uint8)
 
         self.raw_inset = self._raw_inset
@@ -726,6 +748,7 @@ class AtlasExplorer(Viewer):
 
         self.transf = self._transf
 
+	    # Modifie le niveau de zoom de l'image de droite
         self._inset_size = 100
 
         self.cells = []
@@ -734,35 +757,18 @@ class AtlasExplorer(Viewer):
 
         self.actions = []
 
-        self.rot_sl.setValue(int(self.transf.rotation * self.rot_sl.factor))
+        self.rot_sl.setValue(int(self.transf.rotation))# * self.rot_sl.factor))
 
         self.scale_sl.setValue(int(self.transf.scale * self.scale_sl.factor))
 
         # Capture mouse movements to scroll the inset
 
-        self._proxy = pg.SignalProxy(self.vb_atlas.scene().sigMouseMoved, rateLimit=0.1, delay=.1, slot=self.mouse_moved)
+        self._proxy = pg.SignalProxy(self.vb_anat.scene().sigMouseMoved, rateLimit=0.1, delay=.1, slot=self.mouse_moved)
 
-        self.setWindowTitle('Brain slice aligner')
+        self.setWindowTitle('Atlaser Sotfware')
 
-        try:
+        self.help_menu = None
 
-            javabridge.start_vm(class_path=bf.JARS)
-
-            self.bioformat = True
-
-            self._logger.info('Java VM initialized')
-
-        except NameError:
-
-            self.bioformat = False
-
-            self._logger.info('Bioformat not installed. Will not be able to open slide scanner files. '
-
-                              'See https://pythonhosted.org/python-bioformats/ for installation instructions')
-
-        self._logger.info('Ready to go')
-
-        self.statusBar().showMessage('Ready!', 1000)
 
 
 
@@ -798,13 +804,13 @@ class AtlasExplorer(Viewer):
 
         # Cross on the inset picture
 
-        self._h_line_l.setLine(0, h2, w2-5, h2)
+        self._h_line_l.setLine(0, h2, w2, h2)
 
-        self._h_line_r.setLine(w2 + 5, h2, w, h2)
+        self._h_line_r.setLine(w2, h2, w, h2)
 
-        self._v_line_u.setLine(w2, h2 + 5, w2, h)
+        self._v_line_u.setLine(w2, h2, w2, h)
 
-        self._v_line_d.setLine(w2, h2 - 5, w2, 0)
+        self._v_line_d.setLine(w2, h2, w2, 0)
 
 
 
@@ -821,7 +827,6 @@ class AtlasExplorer(Viewer):
     def clear_transf(self):
 
         self.transf = Transform()
-
 
 
     def mouse_moved(self, pos):
@@ -1248,7 +1253,7 @@ class AtlasExplorer(Viewer):
 
     def sl_rot_changed(self, value):
 
-        self.transf.rotation = value / self.rot_sl.factor
+        self.transf.rotation = value# / self.rot_sl.factor
 
 
 
@@ -1264,7 +1269,7 @@ class AtlasExplorer(Viewer):
 
     def update_transf_sliders(self):
 
-        self.rot_sl.setValue(int(self.transf.rotation * self.rot_sl.factor))
+        self.rot_sl.setValue(int(self.transf.rotation))# * self.rot_sl.factor))
 
         self.scale_sl.setValue(int(self.transf.scale * self.scale_sl.factor))
 
@@ -1510,6 +1515,15 @@ class AtlasExplorer(Viewer):
 
 
 
+    # Ajout d'un manuel pour avoir les shortcuts
+    def help(self):
+
+        img = Image.open('helpManuel.png')
+        
+        img.show()
+
+
+
     def auto_scale(self):
 
         atlas_shape = self.c_atlas.shape[:2]
@@ -1520,13 +1534,16 @@ class AtlasExplorer(Viewer):
 
         self.cell_pos = []
 
-        if self.transf.scale == 1:
+        # On fixe le scale à 1 (et on ne transforme plus cette valeur comme ci-dessous)
+        self.transf.scale = 1
 
-            self.transf.scale = min(atlas_shape[0] / self.slice_image.img.width,
+        # if self.transf.scale == 1:
 
-                                    atlas_shape[1] / self.slice_image.img.height)
+        #     self.transf.scale = min(atlas_shape[0] / self.slice_image.img.width,
 
-            self.update_transf_sliders()
+        #                             atlas_shape[1] / self.slice_image.img.height)
+
+        #     self.update_transf_sliders()
 
         self.update_img()
 
@@ -1534,11 +1551,11 @@ class AtlasExplorer(Viewer):
 
     def update_n_slices(self, n_zslices, n_channels, n_res_levels, n_brainslices):
 
-        self.z_sl.setRange(0, n_zslices - 1)
+        # self.z_sl.setRange(0, n_zslices - 1)
 
         self.channel_sl.setRange(0, n_channels - 1)
 
-        self.zoom_sl.setRange(0, n_res_levels - 1)
+        # self.zoom_sl.setRange(0, n_res_levels - 1)
 
         self.brain_sl.setRange(0, n_brainslices - 1)
 
@@ -1592,29 +1609,29 @@ class AtlasExplorer(Viewer):
 
         # Reset contrast and brightness
 
-        self.contrast_sl.setValue(50)
+        # self.contrast_sl.setValue(50)
 
-        self.lum_sl.setValue(50)
+        # self.lum_sl.setValue(50)
 
         if self.slice_image.is_tiff:
 
-            self.z_sl.setEnabled(False)
+            # self.z_sl.setEnabled(False)
 
             self.channel_sl.setEnabled(False)
 
         else:
 
-            self.z_sl.setEnabled(True)
+            # self.z_sl.setEnabled(True)
 
-            self.zoom_sl.setEnabled(True)
+            # self.zoom_sl.setEnabled(True)
 
             self.channel_sl.setEnabled(True)
 
-            self.z_sl.setValue(self.slice_image.c_zslice)
+            # self.z_sl.setValue(self.slice_image.c_zslice)
 
             self.channel_sl.setValue(self.slice_image.c_channel)
 
-            self.zoom_sl.setValue(self.slice_image.c_zoom)
+            # self.zoom_sl.setValue(self.slice_image.c_zoom)
 
         if self.slice_image.is_ndpis:
 
@@ -1796,13 +1813,10 @@ if __name__ == '__main__':
 
     window = AtlasExplorer()
 
+    window.setWindowIcon(QtGui.QIcon("logoTest.jpg"))
+
     window.show()
 
     window.setGeometry(40, 20, 1000, 800)
 
     sys.exit(qApp.exec_())
-
-
-
-
-
