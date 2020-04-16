@@ -12,6 +12,10 @@ from pathlib import Path
 
 from PIL import Image
 
+from skimage.util import img_as_uint
+
+from skimage.color import rgb2gray
+
 import nanozoomer as nz
 
 try:
@@ -1106,11 +1110,7 @@ class SliceImage(QtCore.QObject):
 
         elif self.path.suffix in {'.ndpis'}:
 
-            self.stack_loader = self.ndpis_stack_loader
-
-            self._is_ndpis = True
-
-            self.ndpis_stack_loader(0, 4, 0, 0)
+           self.open_whole_img()
 
         self.p_max = self.pic.max()
 
@@ -1284,3 +1284,43 @@ class SliceImage(QtCore.QObject):
 
         pass
 
+
+    def open_whole_img(self):
+
+        channel = ["DAPI", "TRITC"]
+
+        self._prms = nz.parse_ndpis(self.path)
+
+        images = [self._prms[f'Image{ix}'] for ix in range(int(self._prms['NoImages']))]
+
+        self._ndpis_files = [self._prms['path'] / im for im in images]
+
+        parent_path = self.path.parent
+
+        img_name = self.path.stem
+
+        base_path = parent_path / img_name
+
+        if not base_path.is_dir():
+
+            base_path.mkdir()
+
+        for i in range(len(images)):
+
+            img_path = base_path / f'{img_name}-{channel[i]}.tiff'
+
+            im = nz.open_im(self._ndpis_files[i])
+
+            dimensions = im.level_dimensions
+
+            pil_im = im.read_region((0, 0), 1, dimensions[1])
+
+            self._raw_img = pil_im
+
+            pil_im.save(img_path)
+
+            im.close()
+
+            self._dw_img = self._raw_img.copy()
+
+            self.img = self._dw_img.copy()

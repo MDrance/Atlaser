@@ -24,7 +24,7 @@ import json
 
 from pathlib import Path
 
-from controlsV1 import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage, LabeledCircleWidget
+from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage, LabeledCircleWidget
 
 from atlas import read_ontology, id_colors, color_atlas, get_atlas
 
