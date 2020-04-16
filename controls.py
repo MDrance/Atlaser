@@ -1313,7 +1313,7 @@ class SliceImage(QtCore.QObject):
 
             dimensions = im.level_dimensions
 
-            pil_im = im.read_region((0, 0), 1, dimensions[1])
+            pil_im = im.read_region((0, 0), 4, dimensions[4])
 
             self._raw_img = pil_im
 
