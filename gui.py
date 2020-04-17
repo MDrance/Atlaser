@@ -101,6 +101,8 @@ class Viewer(QtWidgets.QMainWindow):
         self.edit_menu.addAction('&Clear transformation', self.clear_transf, QtCore.Qt.CTRL + QtCore.Qt.ALT + QtCore.Qt.Key_C)
 
         self.edit_menu.addAction('Clear cells', self.clear_cells)
+
+        self.edit_menu.addAction('Select tool', self.select_tool)
         
         self.help_menu = QtWidgets.QMenu('&Help', self)
 
@@ -590,6 +592,11 @@ class Viewer(QtWidgets.QMainWindow):
 
 
     def select_region(self, current, previous):
+
+        pass
+
+
+    def select_tool(self):
 
         pass
 
@@ -1169,6 +1176,12 @@ class AtlasExplorer(Viewer):
 
         self.anat_image.setLevels((0, self.slice_image.p_max * (2 - value / 50)))
 
+
+    def select_tool(self):
+
+        
+
+        self.select_tool()
 
 
     @staticmethod

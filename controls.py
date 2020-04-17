@@ -1112,6 +1112,8 @@ class SliceImage(QtCore.QObject):
 
            self.open_whole_img()
 
+            # self.ndpis_stack_loader(0, 4, 0, 0)
+
         self.p_max = self.pic.max()
 
 
@@ -1289,11 +1291,13 @@ class SliceImage(QtCore.QObject):
 
         channel = ["DAPI", "TRITC"]
 
-        self._prms = nz.parse_ndpis(self.path)
+        if self._prms == {}:
 
-        images = [self._prms[f'Image{ix}'] for ix in range(int(self._prms['NoImages']))]
+            self._prms = nz.parse_ndpis(self.path)
 
-        self._ndpis_files = [self._prms['path'] / im for im in images]
+            images = [self._prms[f'Image{ix}'] for ix in range(int(self._prms['NoImages']))]
+
+            self._ndpis_files = [self._prms['path'] / im for im in images]
 
         parent_path = self.path.parent
 
@@ -1321,6 +1325,10 @@ class SliceImage(QtCore.QObject):
 
             im.close()
 
-            self._dw_img = self._raw_img.copy()
+        self._dw_img = self._raw_img.copy()
 
-            self.img = self._dw_img.copy()
+        self.img = self._dw_img.copy()
+
+
+    # def select_tool(self):
+
