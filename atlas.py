@@ -5,7 +5,7 @@ from skimage.measure import find_contours
 from skimage.draw import polygon_perimeter
 import json
 import matplotlib.pyplot as plt
-# import SimpleITK as sitk
+#import SimpleITK as sitk
 
 
 def get_atlas(path):
@@ -309,8 +309,8 @@ def save_color_atlas():
 #     new_matrix = np.dot(rotation, matrix)
 #     new_transform.SetMatrix(new_matrix.ravel())
 #     new_transform.SetCenter((image.GetWidth() / 2, image.GetHeight() / 2))
-#     # resampled = resample(image, new_transform)
-#
+#     resampled = resample(image, new_transform)
+
 #     return new_transform
 #
 #
@@ -410,3 +410,4 @@ def save_color_atlas():
 #     m_img = sitk.Cast(m_img, sitk.sitkFloat32)
 #     # f_img.SetOrigin(get_img_center(template_volume[:, :, n_bef]))
 #     f_img.SetOrigin((0, 0))
+

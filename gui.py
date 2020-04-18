@@ -22,9 +22,11 @@ from PIL import ImageEnhance
 
 import json
 
+import cv2
+
 from pathlib import Path
 
-from controlsV1 import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage, LabeledCircleWidget
+from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage, LabeledCircleWidget
 
 from atlas import read_ontology, id_colors, color_atlas, get_atlas
 
@@ -1517,10 +1519,10 @@ class AtlasExplorer(Viewer):
 
     # Ajout d'un manuel pour avoir les shortcuts
     def help(self):
-
-        img = Image.open('helpManuel.png')
         
-        img.show()
+        img = cv2.imread("helpManuel.png")
+        
+        cv2.imshow('Help manuel', img)
 
 
 
@@ -1813,10 +1815,11 @@ if __name__ == '__main__':
 
     window = AtlasExplorer()
 
-    window.setWindowIcon(QtGui.QIcon("logoTest.jpg"))
+    window.setWindowIcon(QtGui.QIcon("logo.png"))
 
     window.show()
 
     window.setGeometry(40, 20, 1000, 800)
 
     sys.exit(qApp.exec_())
+

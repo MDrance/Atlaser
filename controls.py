@@ -810,11 +810,11 @@ class SliceImage(QtCore.QObject):
 
         self.downfactor = 1
 
-        self._raw_img = Image.new('L', (5, 5))
+        self._raw_img = Image.new('L', (50, 50))
 
-        self._dw_img = Image.new('L', (5, 5))
+        self._dw_img = Image.new('L', (50, 50))
 
-        self._img = Image.new('L', (5, 5))
+        self._img = Image.new('L', (50, 50))
 
         self.img = self._img
 
@@ -1283,4 +1283,5 @@ class SliceImage(QtCore.QObject):
     def default_stack_loader(self, z, res, channel, brain_slice=None):
 
         pass
+
 
