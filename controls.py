@@ -356,7 +356,7 @@ class LabeledCircleWidget(QtWidgets.QWidget):
 
         self.dial = QtWidgets.QDial()
 
-        self.dial.valueChanged.connect(self.dialer_changed)
+        self.dial.valueChanged.connect(self.value_changed)
 
         self.dial.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
@@ -386,7 +386,7 @@ class LabeledCircleWidget(QtWidgets.QWidget):
 
         self.value = self.dial.value
 
-        # self.setSingleStep = self.slider.setSingleStep
+        self.setSingleStep = self.dial.setSingleStep
 
         self.setEnabled = self.dial.setEnabled
 
@@ -395,14 +395,6 @@ class LabeledCircleWidget(QtWidgets.QWidget):
         self.factor = factor
 
         self.value_changed(self.dial.value())
-
-
-
-    def dialer_changed(self):
-
-        getValue = self.dial.value()
-
-        self.label.setText(" : " + str(getValue))
 
 
 
@@ -427,7 +419,7 @@ class LabeledCircleWidget(QtWidgets.QWidget):
 
         try:
 
-            self.dial.setValue(int(float(self.value_label.text())))
+            self.dial.setValue(int(float(self.value_label.text()) * self.factor))
 
         except ValueError:
 
