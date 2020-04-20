@@ -1286,7 +1286,7 @@ class SliceImage(QtCore.QObject):
 
         pass
 
-
+    #Martin
     def open_whole_img(self):
 
         channel = ["DAPI", "TRITC"]

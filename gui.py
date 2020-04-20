@@ -22,6 +22,8 @@ from PIL import ImageEnhance
 
 import json
 
+import cv2
+
 from pathlib import Path
 
 from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImage, LabeledCircleWidget
@@ -1177,11 +1179,14 @@ class AtlasExplorer(Viewer):
         self.anat_image.setLevels((0, self.slice_image.p_max * (2 - value / 50)))
 
 
+    #Martin 
     def select_tool(self):
 
-        
+        r = cv2.selectROIs(self.anat_image, fromCenter = False, showCrosshair = False)
+        imCrop = self.anat_image[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+        cv2.imshow("Image", imCrop)
+        cv2.waitKey(0)
 
-        self.select_tool()
 
 
     @staticmethod
