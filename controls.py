@@ -1308,26 +1308,21 @@ class SliceImage(QtCore.QObject):
         if not base_path.is_dir():
 
             base_path.mkdir()
+        
+        channel_path_dapi = base_path / f'{channel[0]}'
 
-        for i in range(len(images)):
+        if not channel_path_dapi.is_dir():
 
-            img_path = base_path / f'{img_name}-{channel[i]}.tiff'
+            channel_path_dapi.mkdir()
 
-            im = nz.open_im(self._ndpis_files[i])
+        channel_path_tritc = base_path / f'{channel[1]}'
 
-            dimensions = im.level_dimensions
+        if not channel_path_tritc.is_dir():
 
-            pil_im = im.read_region((0, 0), 4, dimensions[4])
+            channel_path_tritc.mkdir()
 
-            self._raw_img = pil_im
+        crop_im = nz.crop_from_dapi(self._prms, res = 3)
 
-            pil_im.save(img_path)
-
-            im.close()
-
-        self._dw_img = self._raw_img.copy()
-
-        self.img = self._dw_img.copy()
 
 
     # def select_tool(self):
