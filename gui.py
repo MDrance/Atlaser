@@ -30,6 +30,18 @@ from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImag
 
 from atlas import read_ontology, id_colors, color_atlas, get_atlas
 
+# try:
+
+#     import javabridge
+
+#     import bioformats as bf
+
+# except ImportError:
+
+#     print('Bioformat not installed. Will not be able to open slide scanner files. '
+
+#           'See https://pythonhosted.org/python-bioformats/ for installation instructions')
+
 
 
 
@@ -75,6 +87,10 @@ class Viewer(QtWidgets.QMainWindow):
         self.file_menu = QtWidgets.QMenu('&File', self)
 
         self.file_menu.addAction('&Open data', self.select_data_file, QtCore.Qt.CTRL + QtCore.Qt.Key_O)
+
+        # self.file_menu.addAction('&Save workspace', self.save_transf, QtCore.Qt.CTRL + QtCore.Qt.Key_S)
+
+        # self.file_menu.addAction('&Load workspace', self.load_transf, QtCore.Qt.CTRL + QtCore.Qt.Key_L)
 
         self.file_menu.addAction('&Export points', self.export_points, QtCore.Qt.CTRL + QtCore.Qt.Key_E)
 
@@ -124,6 +140,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         # LAYOUTS
 
+	    #sépare ecran noir et menu scroll
         self.h_splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
         self.right_widget = QtWidgets.QWidget(self)
@@ -142,7 +159,17 @@ class Viewer(QtWidgets.QMainWindow):
 
         # WIDGETS
 
+
+
         # Slider for z and c -stack and zoom level
+
+        #self.z_sl = LabeledSlider('Z slice')
+
+        #self.z_sl.setSingleStep(1)
+
+        #self.z_sl.setEnabled(False)
+
+        #self.z_sl.valueChanged.connect(self.z_change)
 
         self.channel_sl = LabeledSlider('Channel')
 
@@ -152,7 +179,15 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.channel_sl.setEnabled(False)
 
-        # Sliders for brain slices
+        # self.zoom_sl = LabeledSlider('Resolution level')
+
+        # self.zoom_sl.valueChanged.connect(self.zoom_change)
+
+        # self.zoom_sl.setSingleStep(1)
+
+        # self.zoom_sl.setRange(0, 4)
+
+        # self.zoom_sl.setEnabled(False)
 
         self.brain_sl = LabeledSlider('Brain slice')
 
@@ -204,8 +239,6 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.slice_sl.valueChanged.connect(self.update_atlas)
 
-        # Slider for atlas opacity
-
         self.alpha_sl = LabeledSlider('Atlas opacity',)
 
         self.alpha_sl.setRange(0, 100)
@@ -215,9 +248,12 @@ class Viewer(QtWidgets.QMainWindow):
         self.alpha_sl.setValue(50)
 
         self.alpha_sl.valueChanged.connect(self.atlas_alpha)
+
+        # self.trans_sl = LabeledSlider('Translation')
+
+        # Transformation sliders
         
         # Circle widget to rotate the image
-
         self.rot_sl = LabeledCircleWidget('Image rotation', factor = 1)
 
         self.rot_sl.setRange(0, 360)
@@ -227,8 +263,6 @@ class Viewer(QtWidgets.QMainWindow):
         self.rot_sl.valueChanged.connect(self.sl_rot_changed)
 
         self.rot_sl.setValue(90)
-
-        # Slider for scale, but not used
 
         self.scale_sl = LabeledSlider('Scale', factor = 1000)
 
@@ -246,7 +280,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.show_atlas_cb.stateChanged.connect(self.show_atlas)
 
-        # Box with atlas regions
+        # Atlas orientation combo box
 
         self.orientation_cb = QtWidgets.QComboBox(self)
 
@@ -254,7 +288,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.orientation_cb.currentIndexChanged.connect(self.change_orientation)
 
-        # Creation of region tree
+        # Region tree
 
         self.tree = QtWidgets.QTreeView(self.right_widget)
 
@@ -270,6 +304,8 @@ class Viewer(QtWidgets.QMainWindow):
 
         # Buttons
 
+        # self.register_pb = QtWidgets.QPushButton('&Register')
+
         self.fliplr_pb = QtWidgets.QPushButton('Flip &left-right')
 
         self.fliplr_pb.setCheckable(True)
@@ -282,6 +318,8 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.flipud_pb.clicked.connect(self.flip_ud)
 
+        # self.register_pb.clicked.connect(self.align)
+
         # Graph widgets
 
         self.anat_image = pg.ImageItem()
@@ -290,19 +328,23 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.template_image = pg.ImageItem()
 
-        self.atlas_image.scale(8, 8)
+        self.zoom_image = pg.ImageItem()
+
+        # self.anat_image.setCompositionMode(QtGui.QPainter.CompositionMode_Plus)
 
         self.atlas_image.setCompositionMode(QtGui.QPainter.CompositionMode_Plus)
 
-	    # Mouse sensitivity on both windows
+        # Mouse sensitivity on both windows
 
         self.atlas_image.setZValue(10)
 
+        self.zoom_image.setZValue(10)
+
         # Create the selection tool (circles)
 
-        self.cell_scatter = pg.ScatterPlotItem(size = 20)
+        self.cell_scatter = pg.ScatterPlotItem()
 
-        self.cell_pen = pg.mkPen()#color=(242, 142, 85, 200))
+        self.cell_pen = pg.mkPen(color=(242, 142, 85, 200))
 
         self.cell_brush = pg.mkBrush(255, 255, 255, 120)
 
@@ -328,11 +370,69 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.vb_anat.invertY()
 
+        # Ajoute l'image à l'atlas = ils ne font plus qu'un
+
         self.vb_anat.addItem(self.anat_image)
 
         self.vb_anat.addItem(self.atlas_image)
 
         self.vb_anat.addItem(self.cell_scatter)
+
+        # self.vb_atlas = self.g_layout.addViewBox(row=1, col=0)
+
+        # self.vb_atlas.setAspectLocked()
+
+        # self.vb_atlas.invertY()
+
+        # self.vb_atlas.addItem(self.template_image)
+
+        # self.vb_anat.setXLink(self.vb_atlas)
+
+        # self.vb_anat.setYLink(self.vb_atlas)
+
+        # Zoom inset on the high quality image
+
+        self.vb_inset = self.g_layout.addViewBox(row=0, col=1)
+
+        self.vb_inset.addItem(self.zoom_image)
+
+        self.vb_inset.invertY()
+
+        self.vb_inset.setAspectLocked()
+	
+	    # Modification du pointeur
+
+        cursor_pen = pg.mkPen(color=(242, 142, 85), width=2)
+
+        self._h_line_l = QtWidgets.QGraphicsLineItem(0, 2, 2, 2)
+
+        self._h_line_r = QtWidgets.QGraphicsLineItem(1, 2, 4, 2)
+
+        self._v_line_u = QtWidgets.QGraphicsLineItem(2, 3, 2, 4)
+
+        self._v_line_d = QtWidgets.QGraphicsLineItem(2, 0, 2, 3)
+
+        self._h_line_l.setParentItem(self.zoom_image)
+
+        self._h_line_r.setParentItem(self.zoom_image)
+
+        self._v_line_u.setParentItem(self.zoom_image)
+
+        self._v_line_d.setParentItem(self.zoom_image)
+
+        self._h_line_l.setPen(cursor_pen)
+
+        self._h_line_r.setPen(cursor_pen)
+
+        self._v_line_u.setPen(cursor_pen)
+
+        self._v_line_d.setPen(cursor_pen)
+
+        self.vb_inset.enableAutoRange()
+
+        # self.vb_atlas.addItem(self._v_line)
+
+        # self.vb_atlas.addItem(self._h_line)
 
 
         # LAYOUT setup
@@ -341,13 +441,19 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.v_layout_right.addWidget(self.tree)
 
+        # self.v_layout_right.addWidget(self.z_sl)
+
         self.v_layout_right.addWidget(self.channel_sl)
+
+        # self.v_layout_right.addWidget(self.zoom_sl)
 
         self.v_layout_right.addWidget(self.brain_sl)
 
         self.v_layout_right.addWidget(self.lum_sl)
 
         self.v_layout_right.addWidget(self.contrast_sl)
+
+        #self.v_layout_right.addWidget(self.image_zoom)
 
         self.h_atlas.addWidget(self.orientation_cb)
 
@@ -361,6 +467,9 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.v_layout_right.addWidget(self.rot_sl)
 
+        # Plus besoin d'afficher le widget pour modifier la résolution étant donné que la valeur est fixée à 1
+        # self.v_layout_right.addWidget(self.scale_sl)
+
         self.h_layout_buttons.addWidget(self.fliplr_pb)
 
         self.h_layout_buttons.addWidget(self.flipud_pb)
@@ -368,6 +477,8 @@ class Viewer(QtWidgets.QMainWindow):
         self.v_layout_right.addLayout(self.h_layout_buttons)
 
         self.v_layout_right.addWidget(self.cell_select_cb)
+
+        # self.h_layout_right.addWidget(self.register_pb)
 
         self.v_layout_right.addLayout(self.h_layout_right)
 
@@ -381,7 +492,9 @@ class Viewer(QtWidgets.QMainWindow):
 
 
 
-        # Shortcuts to move atlas slices (one-by-one)
+        # Some shortcuts
+        
+        # Déplacement de slice en slice avec les flèches gauche et droite
 
         atlas_fwd = QtWidgets.QShortcut(QtCore.Qt.Key_Right, self.main_widget)
 
@@ -619,7 +732,6 @@ class AtlasExplorer(Viewer):
         self.p_max = 2**16
 
         # Change the number value to open by default a specific atlas (0: coronal, 1: horizontal, 2: sagittal)
-    
         self._c_orient = 0
 
         self._sel_regions = {}
@@ -661,7 +773,7 @@ class AtlasExplorer(Viewer):
 
         # Capture mouse movements to scroll the inset
 
-        self._proxy = pg.SignalProxy(self.anat_image.scene().sigMouseMoved, rateLimit=0.1, delay=.1, slot=self.mouse_moved)
+        self._proxy = pg.SignalProxy(self.vb_anat.scene().sigMouseMoved, rateLimit=0.1, delay=.1, slot=self.mouse_moved)
 
         self.setWindowTitle('Atlaser Sotfware')
 
@@ -683,6 +795,35 @@ class AtlasExplorer(Viewer):
             self.statusBar().showMessage('Ready for cell selection', 1500)
 
 
+
+    def draw_cross(self):
+
+        """
+
+        Draw the cross cursor on the inset zoom picture
+
+        Place it at the center of the inset, which depends on the exact size of the self._raw_inset array
+
+        """
+
+        # inset size
+
+        w, h = self._raw_inset.shape
+
+        w2, h2 = w//2, h//2
+
+        # Cross on the inset picture
+
+        self._h_line_l.setLine(0, h2, w2, h2)
+
+        self._h_line_r.setLine(w2, h2, w, h2)
+
+        self._v_line_u.setLine(w2, h2, w2, h)
+
+        self._v_line_d.setLine(w2, h2, w2, 0)
+
+
+
     def clear_cells(self):
 
         self.cells = []
@@ -694,7 +835,6 @@ class AtlasExplorer(Viewer):
 
 
     def clear_transf(self):
-        """ Reset image transformation """
 
         self.transf = Transform()
 
@@ -702,18 +842,25 @@ class AtlasExplorer(Viewer):
     def mouse_moved(self, pos):
 
         """
+
         Update the zoom inset from the raw image when the mouse cursor moves over the low resolution atlas aligned image
 
-        
+
         Parameters
+
         ----------
-        
+
         pos: list of SceneEvents
+
             Contains the mouse position (in scene coordinates, will need conversion)
+
         """
 
         # FIXME: When too close to the edges, not possible to get a precise position
-        
+        # Ne marche pas car :
+            # Zone de clic = zone de l'atlas
+            # Si on sort la souris de l'atlas, ce n'est plus précis car on ne peut plus cliquer dans tous les cas
+
         if not self.cell_select_cb.isChecked():
 
             return
@@ -723,6 +870,8 @@ class AtlasExplorer(Viewer):
         v_range = self.vb_anat.viewRange()
 
         x, y = self.convert_mouse_pos(pos.x(), pos.y(), v_range[0][0], v_range[1][0])
+
+        x, y = x, y
 
         all_scales = self.slice_image.downfactor / self.transf.scale
 
@@ -752,6 +901,8 @@ class AtlasExplorer(Viewer):
 
         self.raw_inset = np.array(self.transf_raw.crop((start_x, start_y, stop_x, stop_y)))
 
+        self.draw_cross()
+
 
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
@@ -763,6 +914,12 @@ class AtlasExplorer(Viewer):
         Perform some cleanup
 
         """
+
+        # if self.bioformat:
+
+        #     javabridge.kill_vm()
+
+        #     self._logger.info('Kill the Java VM')
 
         a0.accept()
 
@@ -787,7 +944,6 @@ class AtlasExplorer(Viewer):
         path = im_path.parent / f'cells_{im_path.stem}.xlsx'
 
 
-
         with pd.ExcelWriter(path) as writer:
 
             counts.to_excel(writer, 'cell_counts', index=False, freeze_panes=(1, 0))
@@ -797,6 +953,7 @@ class AtlasExplorer(Viewer):
 
 
     # Displays the image in the right windows when cell mode selection is activated
+    
     def apply_transf(self, img, scale=True, trans=True):
 
         new_img = img.copy()
@@ -875,41 +1032,35 @@ class AtlasExplorer(Viewer):
 
         # Original position zoom corrected
 
-        ex = x
-
-        ey = y
+        ex, ey = x, y
 
         # Correct for zoom
 
         px_width, px_height = self.anat_image.pixelSize()
 
-        x /= px_width 
+        x /= px_width
 
         y /= px_height
 
         # Inverse transformation from display to data
 
-        coords = np.intp(pg.transformCoordinates(self.atlas_image.inverseDataTransform(), np.array([x, y])))
+        coords = np.intp(pg.transformCoordinates(self.anat_image.inverseDataTransform(), np.array([x, y])))
 
         dx = min_x + coords[0]
 
         dy = min_y + coords[1]
 
-        # Divide dx and dy by the number of the atlas scale (here, 8)
-        
-        dx = dx / 8
+        # Divide dx and dy by the number of the atlas scale (here, 10)
 
-        dy = dy / 8
+        dx = dx
+
+        dy = dy
 
         return dx, dy
 
 
 
     def cell_clicked(self, x, y, mx, my):
-        """
-        Get informations from the cell clicked
-
-        """
 
         dx, dy = self.convert_mouse_pos(x, y, mx, my)
 
@@ -941,9 +1092,9 @@ class AtlasExplorer(Viewer):
 
         reg_ix = self.tree_model.match(self.tree_model.index(0, 0, QtCore.QModelIndex()),
 
-                                    QtCore.Qt.DisplayRole, QtCore.QVariant(reg.abbr),
+                                       QtCore.Qt.DisplayRole, QtCore.QVariant(reg.abbr),
 
-                                    1, QtCore.Qt.MatchExactly|QtCore.Qt.MatchRecursive)
+                                       1, QtCore.Qt.MatchExactly|QtCore.Qt.MatchRecursive)
 
         if reg_ix:
 
@@ -955,17 +1106,15 @@ class AtlasExplorer(Viewer):
 
             self.cells.append({'pos': (x, y), 'structure': str(reg)})
 
-            self.cell_pos.append((dx * 8, dy * 8))
+            self.cell_pos.append((dx, dy))
 
             self.actions.append(((self.cells.pop, self.cell_pos.pop), (-1, -1)))
-                
-            self.cell_scatter.setData(pos = self.cell_pos)  # multiply self.cell_pos increase the width of the circle (divide do the opposite)
+
+            self.cell_scatter.setData(pos=self.cell_pos)
 
             self.cell_pos = check_duplicate(self.cell_pos)
 
             self.cells = check_duplicate(self.cells)
-            
-            self._logger.debug(f'Value: {self.cells}')
 
 
 
@@ -1079,23 +1228,31 @@ class AtlasExplorer(Viewer):
 
         self.slice_sl.setValue(self.c_slice + 1)
 
+        self.apply_brightness(self.lum_sl.value())
+
+
 
 
     def prev_slice(self):
 
         self.slice_sl.setValue(self.c_slice - 1)
 
+        self.apply_brightness(self.lum_sl.value())
 
 
     def flip_lr(self):
 
         self.transf.flipped_lr = not self.transf.flipped_lr
 
+        self.apply_brightness(self.lum_sl.value())
+
 
 
     def flip_ud(self):
 
         self.transf.flipped_ud = not self.transf.flipped_ud
+
+        self.apply_brightness(self.lum_sl.value())
 
 
 
@@ -1113,6 +1270,8 @@ class AtlasExplorer(Viewer):
 
         self.transf.add_translation((x_shift, y_shift))
 
+        self.apply_brightness(self.lum_sl.value())
+
 
 
     def scaling(self, value):
@@ -1122,6 +1281,8 @@ class AtlasExplorer(Viewer):
         self.transf.add_scale(scale)
 
         self.update_transf_sliders()
+
+        self.apply_brightness(self.lum_sl.value())
 
 
 
@@ -1134,9 +1295,21 @@ class AtlasExplorer(Viewer):
 
 
 
+    # def sl_scale_changed(self, value):
+
+    #     if value == 1:
+
+    #         return
+
+    #     self.transf.scale = value / self.scale_sl.factor
+
+
+
     def update_transf_sliders(self):
 
-        self.rot_sl.setValue(int(self.transf.rotation))
+        self.rot_sl.setValue(int(self.transf.rotation))# * self.rot_sl.factor))
+
+        # self.scale_sl.setValue(int(self.transf.scale * self.scale_sl.factor))
 
         self.fliplr_pb.setChecked(bool(self.transf.flipped_lr))
 
@@ -1175,6 +1348,8 @@ class AtlasExplorer(Viewer):
     def raw_inset(self, value):
 
         self._raw_inset = value
+
+        self.zoom_image.setImage(value)
 
 
 
@@ -1400,13 +1575,25 @@ class AtlasExplorer(Viewer):
         # On fixe le scale à 1 (et on ne transforme plus cette valeur comme ci-dessous)
         self.transf.scale = 1
 
+        # if self.transf.scale != 1:
+
+        #     self.transf.scale = min(atlas_shape[0] / self.slice_image.img.width,
+
+        #                             atlas_shape[1] / self.slice_image.img.height)
+
+        #     self.update_transf_sliders()
+
         self.update_img()
 
 
 
     def update_n_slices(self, n_zslices, n_channels, n_res_levels, n_brainslices):
 
+        # self.z_sl.setRange(0, n_zslices - 1)
+
         self.channel_sl.setRange(0, n_channels - 1)
+
+        # self.zoom_sl.setRange(0, n_res_levels - 1)
 
         self.brain_sl.setRange(0, n_brainslices - 1)
 
@@ -1460,15 +1647,31 @@ class AtlasExplorer(Viewer):
 
         # Reset contrast and brightness
 
+        # self.contrast_sl.setValue(50)
+
+        # self.lum_sl.setValue(50)
+
         if self.slice_image.is_tiff:
+
+            # self.z_sl.setEnabled(False)
 
             self.channel_sl.setEnabled(False)
 
+            self.scale_sl.setValue(0.2)
+
         else:
+
+            # self.z_sl.setEnabled(True)
+
+            # self.zoom_sl.setEnabled(True)
 
             self.channel_sl.setEnabled(True)
 
+            # self.z_sl.setValue(self.slice_image.c_zslice)
+
             self.channel_sl.setValue(self.slice_image.c_channel)
+
+            # self.zoom_sl.setValue(self.slice_image.c_zoom)
 
         if self.slice_image.is_ndpis:
 
@@ -1478,7 +1681,7 @@ class AtlasExplorer(Viewer):
 
             self.brain_sl.setEnabled(False)
 
-        # Finish initialization
+    # Finish initialization
 
         self.auto_scale()
 
@@ -1588,7 +1791,40 @@ class AtlasExplorer(Viewer):
 
             self.cell_pos = [tuple(c['pos']) for c in l_cells]
 
-            self.cell_scatter.setData(pos = self.cell_pos)
+            self.cell_scatter.setData(pos=self.cell_pos)
+
+
+
+    # def align(self):
+
+    #     c_pos = self.slice_sl.value()
+
+    #     template = self.get_slice(self.template, slice(max(0, c_pos-3), min(c_pos+4, self.template.shape[-1])))
+
+    #     template = template.transpose((0, 2, 1)).astype(self.pic.dtype)
+
+    #
+
+    #     new_img = self._raw_img.copy()
+
+    #     new_img = new_img.rotate(self.transf.rotation, expand=True)
+
+    #     w, h = new_img.size
+
+    #     x_shift, y_shift = self.transf.translation
+
+    #     buffer_img = Image.new(self._raw_img.mode, (w+abs(x_shift), h+abs(y_shift)))
+
+    #     buffer_img.paste(new_img, (x_shift, y_shift))
+
+    #     new_img.close()
+
+    #     self.r_im = register(template, np.array(buffer_img).T, self.transf)
+
+    #     buffer_img.close()
+
+    #     self.anat_image.setImage(self.r_im)
+
 
 
 
@@ -1609,7 +1845,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 
-
 def check_duplicate(list):
 
     res = [] 
@@ -1621,7 +1856,6 @@ def check_duplicate(list):
             res.append(i)
 
     return res 
-
 
 
 
@@ -1638,3 +1872,4 @@ if __name__ == '__main__':
     window.setGeometry(40, 20, 1000, 800)
 
     sys.exit(qApp.exec_())
+

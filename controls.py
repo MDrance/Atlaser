@@ -1075,7 +1075,7 @@ class SliceImage(QtCore.QObject):
 
         if self.path.suffix in {'.tif', '.tiff'}:
 
-            self.downfactor = 5
+            self.downfactor = 50
 
             self._raw_img = Image.open(self.path)
 
@@ -1272,4 +1272,5 @@ class SliceImage(QtCore.QObject):
     def default_stack_loader(self, z, res, channel, brain_slice=None):
 
         pass
+
 
