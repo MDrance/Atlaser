@@ -564,13 +564,11 @@ class EditViewBox(ViewBox):
 
         ev.accept()
 
-        x, y = ev.pos().x(), ev.pos().y()
+        x = ev.pos().x()
+        
+        y = ev.pos().y()
 
         v_range = self.viewRange()
-
-        # x = v_range[0][0] + x
-
-        # y = v_range[1][0] + y
 
         self.cell_select.emit(x, y, v_range[0][0], v_range[1][0])
 
@@ -613,7 +611,6 @@ class EditViewBox(ViewBox):
             self.scale.emit(y_shift)
 
             return
-
 
 
         super().mouseDragEvent(ev, axis)
@@ -1275,5 +1272,4 @@ class SliceImage(QtCore.QObject):
     def default_stack_loader(self, z, res, channel, brain_slice=None):
 
         pass
-
 
