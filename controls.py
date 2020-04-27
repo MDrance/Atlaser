@@ -1114,6 +1114,10 @@ class SliceImage(QtCore.QObject):
 
             # self.ndpis_stack_loader(0, 4, 0, 0)
 
+        elif self.path.suffix in {'.ndpi'}:
+            
+            self.open_ndpi()
+
         self.p_max = self.pic.max()
 
 
@@ -1322,6 +1326,11 @@ class SliceImage(QtCore.QObject):
             channel_path_tritc.mkdir()
 
         crop_im = nz.crop_from_dapi(self._prms, res = 4)
+
+
+    def open_ndpi(self):
+        
+        nz.resize_ndpi(self)
 
 
 

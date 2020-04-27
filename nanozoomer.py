@@ -308,3 +308,16 @@ def crop_from_dapi(prms, res):
 
         im.close()
 
+
+def resize_ndpi(im_path):
+
+    im = ops.OpenSlide(im_path)
+
+    dimlvl = im.level_dimensions
+
+    im = im.read_region((0, 0), 2 , dimlvl[2])
+
+    im.save(im_path.parent / f'{im_path.stem}.tiff')
+
+    
+

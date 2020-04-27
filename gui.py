@@ -1523,7 +1523,7 @@ class AtlasExplorer(Viewer):
 
         dpath, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Choose an image file",
 
-                                                               cwd, 'Image (*.tiff *.tif *.vsi *.ndpis)')
+                                                               cwd, 'Image (*.tiff *.tif *.vsi *.ndpis *.ndpi)')
 
         if dpath != '':
 
