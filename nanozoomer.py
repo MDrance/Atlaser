@@ -128,20 +128,6 @@ def crop(im, bb, res):
     return crop_im
 
 
-def cropv2 (im, bb): 
-
-    im = Image.open(im)
-
-    data = np.asarray(im)
-
-    crop_region = data[bb[0]:bb[2], bb[1]:bb[3], :]  # (x,y top-left), (width, height)
-
-    crop_region = rgb2gray(crop_region)
-
-    crop_im = Image.fromarray(crop_region)
-
-    return crop_im
-
 
 
 def crop_all(im, bboxes, res, path):
