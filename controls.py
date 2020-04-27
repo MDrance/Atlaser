@@ -1321,7 +1321,7 @@ class SliceImage(QtCore.QObject):
 
             channel_path_tritc.mkdir()
 
-        crop_im = nz.crop_from_dapi(self._prms, res = 3)
+        crop_im = nz.crop_from_dapi(self._prms, res = 4)
 
 
 
