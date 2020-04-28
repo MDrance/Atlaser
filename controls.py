@@ -1273,4 +1273,3 @@ class SliceImage(QtCore.QObject):
 
         pass
 
-

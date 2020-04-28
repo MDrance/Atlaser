@@ -30,6 +30,10 @@ from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImag
 
 from atlas import read_ontology, id_colors, color_atlas, get_atlas
 
+import csv
+
+from collections import defaultdict
+
 # try:
 
 #     import javabridge
@@ -100,7 +104,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.edit_menu.addAction('&Undo', self.undo, QtCore.Qt.CTRL + QtCore.Qt.Key_Z)
 
-        self.edit_menu.addAction('&Clear transformation', self.clear_transf, QtCore.Qt.CTRL + QtCore.Qt.ALT + QtCore.Qt.Key_C)
+        # self.edit_menu.addAction('&Clear transformation', self.clear_transf, QtCore.Qt.CTRL + QtCore.Qt.ALT + QtCore.Qt.Key_C)
 
         self.edit_menu.addAction('Clear cells', self.clear_cells)
         
@@ -758,7 +762,8 @@ class AtlasExplorer(Viewer):
 
         self.transf = self._transf
 
-	    # Modifie le niveau de zoom de l'image de droite
+	    # Modifie le niveau de zoom de l'image de droite : plus tu augmentes, plus le zoom baisse (plus de pixel à l'écran donc moins zoomé)
+
         self._inset_size = 75
 
         self.cells = []
@@ -928,28 +933,65 @@ class AtlasExplorer(Viewer):
 
 
     def export_points(self):
+        try : 
+            for i in range(0, len(self.cells)):
 
-        df_cells = pd.DataFrame(self.cells)
+                if (self.cells[i]['Region'] == 'None'):
 
-        df_cells['x'] = df_cells.apply(lambda x: x.pos[0], 1)
+                    d = defaultdict(str)
 
-        df_cells['y'] = df_cells.apply(lambda x: x.pos[1], 1)
+                    d[1] = ""
 
-        df_cells['cells'] = 1
+                    d[2] = ""
 
-        counts = pd.DataFrame(df_cells.groupby('structure').cells.count()).reset_index()
+                    d = dict(d)
 
-        im_path = Path(self.data_path)
+                    self.cells[i].update(d)
 
-        path = im_path.parent / f'cells_{im_path.stem}.xlsx'
+                    self.cells[i]['structure'] = self.cells[i].pop('structure')
 
+                    del self.cells[i]['Region']
+                    
 
-        with pd.ExcelWriter(path) as writer:
+                else:
 
-            counts.to_excel(writer, 'cell_counts', index=False, freeze_panes=(1, 0))
+                    d = defaultdict(str)
 
-            df_cells.to_excel(writer, 'raw_table', index=False, freeze_panes=(1, 0))
+                    d[1] = self.cells[i]['Region'][len(self.cells[i]['Region']) - 2]
 
+                    d[2] = self.cells[i]['Region'][len(self.cells[i]['Region']) - 3]
+
+                    d = dict(d)
+
+                    self.cells[i].update(d)
+
+                    self.cells[i]['structure'] = self.cells[i].pop('structure')
+
+                    del self.cells[i]['Region']
+                    
+
+            im_path = Path(self.data_path)
+
+            path = im_path.parent / f'cells_{im_path.stem}.csv'
+
+            keys = self.cells[i].keys()
+
+            with open(path, 'a', newline='') as file:
+
+                dict_writer = csv.DictWriter(file, keys)
+
+                dict_writer.writerows(self.cells)
+
+            self.cells = []
+        
+        
+        except KeyError:
+
+            pass
+
+            
+
+    
 
 
     # Displays the image in the right windows when cell mode selection is activated
@@ -1086,13 +1128,17 @@ class AtlasExplorer(Viewer):
 
         else:
 
-            l_reg = l_reg[0]
+            l_reg = l_reg[0] # id de la structure récupérée
+        
+        reg = l_reg[1]  # nom de la structure récupérée
 
-        reg = l_reg[1]
+        parent_reg = get_parent(self.onto, l_reg[0])
 
-        reg_ix = self.tree_model.match(self.tree_model.index(0, 0, QtCore.QModelIndex()),
+        if parent_reg == None:
 
-                                       QtCore.Qt.DisplayRole, QtCore.QVariant(reg.abbr),
+            parent_reg = str(None)
+
+        reg_ix = self.tree_model.match(self.tree_model.index(0, 0, QtCore.QModelIndex()), QtCore.Qt.DisplayRole, QtCore.QVariant(reg.abbr),
 
                                        1, QtCore.Qt.MatchExactly|QtCore.Qt.MatchRecursive)
 
@@ -1104,7 +1150,7 @@ class AtlasExplorer(Viewer):
 
         if self.cell_select_cb.isChecked():
 
-            self.cells.append({'pos': (x, y), 'structure': str(reg)})
+            self.cells.append({'pos': (x, y), 'Region': parent_reg, 'structure': str(reg)})
 
             self.cell_pos.append((dx, dy))
 
@@ -1115,6 +1161,9 @@ class AtlasExplorer(Viewer):
             self.cell_pos = check_duplicate(self.cell_pos)
 
             self.cells = check_duplicate(self.cells)
+
+            self._logger.debug(f'Parent info: {parent_reg}')
+
 
 
 
@@ -1859,6 +1908,27 @@ def check_duplicate(list):
 
 
 
+def get_parent(json_tree, target_id):
+
+    for element in json_tree:
+
+        if element['id'] == target_id:
+
+            return [element['id']]
+
+        else:
+
+            if element['children']:
+
+                check_child = get_parent(element['children'], target_id)
+
+                if check_child:
+
+                    return [element['name']] + check_child
+
+
+
+
 if __name__ == '__main__':
 
     qApp = QtWidgets.QApplication(sys.argv)
@@ -1872,4 +1942,3 @@ if __name__ == '__main__':
     window.setGeometry(40, 20, 1000, 800)
 
     sys.exit(qApp.exec_())
-
