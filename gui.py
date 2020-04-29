@@ -348,9 +348,9 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.cell_scatter = pg.ScatterPlotItem()
 
-        self.cell_pen = pg.mkPen(color=(242, 142, 85, 200))
+        self.cell_pen = pg.mkPen(color=(242, 142, 85, 200), width=1.5)
 
-        self.cell_brush = pg.mkBrush(255, 255, 255, 120)
+        self.cell_brush = pg.mkBrush(None)
 
         self.cell_scatter.setBrush(self.cell_brush)
 
@@ -402,7 +402,7 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.vb_inset.invertY()
 
-        self.vb_inset.setAspectLocked()
+        self.vb_inset.setAspectLocked(True)
 	
 	    # Modification du pointeur
 
@@ -1140,7 +1140,7 @@ class AtlasExplorer(Viewer):
 
         reg_ix = self.tree_model.match(self.tree_model.index(0, 0, QtCore.QModelIndex()), QtCore.Qt.DisplayRole, QtCore.QVariant(reg.abbr),
 
-                                       1, QtCore.Qt.MatchExactly|QtCore.Qt.MatchRecursive)
+                                    1, QtCore.Qt.MatchExactly|QtCore.Qt.MatchRecursive)
 
         if reg_ix:
 
@@ -1150,19 +1150,25 @@ class AtlasExplorer(Viewer):
 
         if self.cell_select_cb.isChecked():
 
+            #setOpacity(laValeurDeLaCase)
+
             self.cells.append({'pos': (x, y), 'Region': parent_reg, 'structure': str(reg)})
 
-            self.cell_pos.append((dx, dy))
+            self.cell_pos.append((dx + 1, dy + 1))
 
             self.actions.append(((self.cells.pop, self.cell_pos.pop), (-1, -1)))
 
-            self.cell_scatter.setData(pos=self.cell_pos)
-
-            self.cell_pos = check_duplicate(self.cell_pos)
-
             self.cells = check_duplicate(self.cells)
+    
+            self.cell_scatter.setData(pos = self.cell_pos)
 
-            self._logger.debug(f'Parent info: {parent_reg}')
+            for i in range(0, len(self.cell_pos) - 1):
+
+                if (dx + 1, dy + 1) == self.cell_pos[i]:
+
+                    self.cell_pos.remove(self.cell_pos[i])
+
+                    self.cell_scatter.setData(pos = self.cell_pos)
 
 
 
@@ -1188,8 +1194,10 @@ class AtlasExplorer(Viewer):
         for a, ix in zip(actions, args):
 
             a(ix)
+        
+        self.cell_pos = check_duplicate(self.cell_pos)
 
-        self.cell_scatter.setData(pos=self.cell_pos)
+        self.cell_scatter.setData(pos = self.cell_pos)
 
 
 
@@ -1603,6 +1611,7 @@ class AtlasExplorer(Viewer):
 
 
     # Helping manuel to get shortcuts and tips
+
     def help(self):
         
         img = cv2.imread("helpManuel.png")
@@ -1942,3 +1951,4 @@ if __name__ == '__main__':
     window.setGeometry(40, 20, 1000, 800)
 
     sys.exit(qApp.exec_())
+
