@@ -1180,12 +1180,43 @@ class AtlasExplorer(Viewer):
 
 
     #Martin 
+
+    def updateROI(self, roi):
+        self.slice_image.raw_image.setImage(roi.getArrayRegion(arr, img1aself.slice_image.raw_image), levels=(0, arr.max()))
+
+
     def select_tool(self):
 
-        r = cv2.selectROIs(self.anat_image, fromCenter = False, showCrosshair = False)
-        imCrop = self.anat_image[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
-        cv2.imshow("Image", imCrop)
-        cv2.waitKey(0)
+        #Liste qui contiendra les infos de la ROI à retenir
+        rois = []
+        
+        #Création de l'outil de selection, sur l'image et d'une taille correcte
+        myROI = pg.ROI([1000,1000], [1000,1000])
+
+        rois.append(myROI)
+
+
+        #Ajout de l'outil sur la fenetre qui contient l'image
+        self.vb_anat.addItem(myROI)
+
+        #Gère le scaling horizontal
+        myROI.addScaleHandle([1, 0.5], [0.5, 0.5])
+        myROI.addScaleHandle([0, 0.5], [0.5, 0.5])
+
+        #Gère le scaling vertical
+        myROI.addScaleHandle([0.5, 0], [0.5, 1])
+        myROI.addScaleHandle([0.5, 1], [0.5, 0])
+
+        #Gère le scaling horizontal et vertical
+        myROI.addScaleHandle([1, 1], [0, 0])
+        myROI.addScaleHandle([0, 0], [1, 1])
+
+        for roi in rois:
+            roi.sigRegionChanged.connect(update)
+            self.vb_anat.addItem(roi)
+
+        self.updateROI(rois[-1])
+
 
 
 
