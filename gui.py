@@ -1182,7 +1182,7 @@ class AtlasExplorer(Viewer):
     #Martin 
 
     def updateROI(self, roi):
-        self.slice_image.raw_image.setImage(roi.getArrayRegion(arr, img1aself.slice_image.raw_image), levels=(0, arr.max()))
+        self.slice_image.raw_image.setImage(roi.getArrayRegion(arr, self.slice_image.raw_image), levels=(0, arr.max()))
 
 
     def select_tool(self):
