@@ -1572,7 +1572,7 @@ class AtlasExplorer(Viewer):
 
         alpha = np.zeros(s_atlas.shape) + atlas_alpha
 
-        alpha[np.isin(s_atlas, list(self.sel_regions))] = 255
+        alpha[np.isin(s_atlas, list(self.sel_regions))] = 0
 
         gi = np.logical_and(alpha == atlas_alpha, np.any(c_atlas > 0, 2))
 
