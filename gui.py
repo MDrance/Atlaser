@@ -1184,7 +1184,7 @@ class AtlasExplorer(Viewer):
     def updateROI(self, roi):
         self.slice_image.raw_image.setImage(roi.getArrayRegion(arr, self.slice_image.raw_image), levels=(0, arr.max()))
 
-
+    #Martin
     def select_tool(self):
 
         #Liste qui contiendra les infos de la ROI à retenir

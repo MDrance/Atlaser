@@ -1107,7 +1107,7 @@ class SliceImage(QtCore.QObject):
             self.load_slide_scanner_image()
 
             self.stack_loader = self.vsi_stack_loader
-
+        #Martin
         elif self.path.suffix in {'.ndpis'}:
 
            self.open_whole_img()
@@ -1327,12 +1327,35 @@ class SliceImage(QtCore.QObject):
 
         crop_im = nz.crop_from_dapi(self._prms, res = 3)
 
-
+    #Martin
     def open_ndpi(self):
         
-        nz.resize_ndpi(self)
+        nz.resize_ndpi(self.path)
+
+        parent_path = self.path.parent
+
+        img_name = self.path.stem
+
+        base_path = parent_path / img_name
+
+        if not base_path.is_dir():
+
+            base_path.mkdir()
+
+        channel_path = base_path / f'ch{channel}'
+
+        if not channel_path.is_dir():
+
+            channel_path.mkdir()
+
+        res_path = channel_path / f'res_{res}'
+
+        if not res_path.is_dir():
+
+            res_path.mkdir()
+
+        img_path = res_path / f'{img_name}-{brain_slice}.tiff'
 
 
 
-    # def select_tool(self):
 
