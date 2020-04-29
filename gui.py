@@ -764,7 +764,7 @@ class AtlasExplorer(Viewer):
 
 	    # Modifie le niveau de zoom de l'image de droite : plus tu augmentes, plus le zoom baisse (plus de pixel à l'écran donc moins zoomé)
 
-        self._inset_size = 75
+        self._inset_size = 1000
 
         self.cells = []
 
