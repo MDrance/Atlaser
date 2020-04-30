@@ -1152,7 +1152,7 @@ class AtlasExplorer(Viewer):
 
             #setOpacity(laValeurDeLaCase)
 
-            self.cells.append({'pos': (x, y), 'Region': parent_reg, 'structure': str(reg)})
+            self.cells.append({'pos': (dx + 1, dy + 1), 'Region': parent_reg, 'structure': str(reg)})
 
             self.cell_pos.append((dx + 1, dy + 1))
 
@@ -1162,6 +1162,8 @@ class AtlasExplorer(Viewer):
     
             self.cell_scatter.setData(pos = self.cell_pos)
 
+            self._logger.debug(f'Coordonnées enregistrées: {self.cells[0]}')
+
             for i in range(0, len(self.cell_pos) - 1):
 
                 if (dx + 1, dy + 1) == self.cell_pos[i]:
@@ -1169,6 +1171,15 @@ class AtlasExplorer(Viewer):
                     self.cell_pos.remove(self.cell_pos[i])
 
                     self.cell_scatter.setData(pos = self.cell_pos)
+            
+            for i in range(0, len(self.cells) - 1):
+
+                if (dx + 1, dy + 1) == self.cells[i]['pos']:
+                    
+                    self.cells.remove(self.cells[i])
+
+                    self._logger.debug("Supression du point dans self.cells réalisée")
+
 
 
 
