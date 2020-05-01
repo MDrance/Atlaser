@@ -549,8 +549,7 @@ class EditViewBox(ViewBox):
     cell_select = QtCore.pyqtSignal(float, float, float, float)
 
 
-
-    def __init__(self, parent=None, border=None, lockAspect=False, enableMouse=True, invertY=False, enableMenu=True,
+    def __init__(self, parent=None, border=None, lockAspect=False, enableMouse=True, invertY=False, enableMenu=False,
 
                  name=None, invertX=False):
 
@@ -1272,4 +1271,5 @@ class SliceImage(QtCore.QObject):
     def default_stack_loader(self, z, res, channel, brain_slice=None):
 
         pass
+
 
