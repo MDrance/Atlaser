@@ -319,6 +319,30 @@ def resize_ndpi(im_path):
 
     im_downscale.save(im_path.parent / f'{im_path.stem}.tiff')
 
+    # parent_path = self.path.parent
+
+        # img_name = self.path.stem
+
+        # base_path = parent_path / img_name
+
+        # if not base_path.is_dir():
+
+        #     base_path.mkdir()
+
+        # channel_path = base_path / f'ch{channel}'
+
+        # if not channel_path.is_dir():
+
+        #     channel_path.mkdir()
+
+        # res_path = channel_path / f'res_{res}'
+
+        # if not res_path.is_dir():
+
+        #     res_path.mkdir()
+
+        # img_path = res_path / f'{img_name}-{brain_slice}.tiff'
+
 
     
 
