@@ -1096,17 +1096,15 @@ class SliceImage(QtCore.QObject):
 
             self.stack_loader = self.vsi_stack_loader
         #Martin
-        elif self.path.suffix in {'.ndpis'}:
+        # elif self.path.suffix in {'.ndpis'}:
 
-           self.open_whole_img()
+        #    self.open_whole_img()
 
-            # self.ndpis_stack_loader(0, 4, 0, 0)
-
-        elif self.path.suffix in {'.ndpi'}:
+        # elif self.path.suffix in {'.ndpi'}:
             
-            self.open_ndpi()
+        #     self.open_ndpi()
 
-        self.p_max = self.pic.max()
+        # self.p_max = self.pic.max()
 
 
 
