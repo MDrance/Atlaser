@@ -34,6 +34,8 @@ import csv
 
 from collections import defaultdict
 
+import nanozoomer as nz
+
 # try:
 
 #     import javabridge
@@ -107,7 +109,11 @@ class Viewer(QtWidgets.QMainWindow):
         # self.edit_menu.addAction('&Clear transformation', self.clear_transf, QtCore.Qt.CTRL + QtCore.Qt.ALT + QtCore.Qt.Key_C)
 
         self.edit_menu.addAction('Clear cells', self.clear_cells)
-        
+
+        # self.edit_menu.addAction('Select tool', self.select_tool)
+
+        # self.edit_menu.addAction('Crop from ROI', self.crop_from_roi)
+
         self.help_menu = QtWidgets.QMenu('&Help', self)
 
         self.help_menu.addAction('&Manuel', self.help, QtCore.Qt.CTRL + QtCore.Qt.Key_H)
@@ -607,6 +613,14 @@ class Viewer(QtWidgets.QMainWindow):
         pass
 
 
+    def select_tool(self):
+
+        pass
+
+    def crop_from_roi(self):
+
+        pass
+
 
     def expanded(self, index):
 
@@ -783,6 +797,8 @@ class AtlasExplorer(Viewer):
         self.setWindowTitle('Atlaser Sotfware')
 
         self.help_menu = None
+
+        self.myROIdata = []
 
 
 
@@ -1261,6 +1277,46 @@ class AtlasExplorer(Viewer):
         self.anat_image.setLevels((0, self.slice_image.p_max * (2 - value / 50)))
 
 
+    # # #Martin 
+    # def update(self, roi):    
+    #     roidata = []
+    #     roidata.append(roi.pos())
+    #     roidata.append(roi.size() * 8)
+    #     self.myROIdata = roidata
+    #     print (self.myROIdata)
+
+
+    # #Martin
+    # def select_tool(self):
+
+    #     #Création de l'outil de selection, sur l'image et d'une taille correcte
+    #     myROI = pg.ROI([1000,1000], [350,500])
+
+    #     #Ajout de l'outil sur la fenetre qui contient l'image
+    #     self.vb_anat.addItem(myROI)
+
+    #     #Gère le scaling horizontal
+    #     myROI.addScaleHandle([1, 0.5], [0.5, 0.5])
+    #     myROI.addScaleHandle([0, 0.5], [0.5, 0.5])
+
+    #     #Gère le scaling vertical
+    #     myROI.addScaleHandle([0.5, 0], [0.5, 1])
+    #     myROI.addScaleHandle([0.5, 1], [0.5, 0])
+
+    #     #Gère le scaling horizontal et vertical
+    #     myROI.addScaleHandle([1, 1], [0, 0])
+    #     myROI.addScaleHandle([0, 0], [1, 1])
+
+    #     myROI.sigRegionChanged.connect(self.update)
+
+    #     self.update(myROI)
+
+
+    # def crop_from_roi(self):
+    #     return
+
+
+
 
     @staticmethod
 
@@ -1611,7 +1667,7 @@ class AtlasExplorer(Viewer):
 
         dpath, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Choose an image file",
 
-                                                               cwd, 'Image (*.tiff *.tif *.vsi *.ndpis)')
+                                                               cwd, 'Image (*.tiff *.tif *.vsi *.ndpis *.ndpi)')
 
         if dpath != '':
 

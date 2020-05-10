@@ -16,6 +16,8 @@ from PIL import Image
 
 from pathlib import Path
 
+import operator
+
 
 
 
@@ -32,7 +34,7 @@ def get_bboxes(im):
 
     ----------
 
-    im: PIL Image
+    im: Openslide Image
 
         Open ndpi image
 
@@ -119,12 +121,11 @@ def crop(im, bb, res):
 
                                  np.intp(bb[2:] / im.level_downsamples[res]))  # (x,y top-left), resolution, (width, height)
 
-    crop_region = img_as_uint(rgb2gray(np.asarray(crop_region)))
+    crop_region = rgb2gray(np.asarray(crop_region))
 
     crop_im = Image.fromarray(crop_region)
 
     return crop_im
-
 
 
 
@@ -173,7 +174,7 @@ def crop_all(im, bboxes, res, path):
 
         # logger.info(f'\t Slice #{ix}')
 
-        crop_im = crop(im, tuple(bb), res)
+        crop_im = crop(im, bb, res)
 
         crop_im.save(path.parent / f'{path.stem}_{ix}.tiff')
 
@@ -253,7 +254,7 @@ def open_im(im_path):
 
 
 
-def crop_from_dapi(prms, res=4):
+def crop_from_dapi(prms, res):
 
     """
 
@@ -306,4 +307,18 @@ def crop_from_dapi(prms, res=4):
         crop_all(im, bboxes, res, im_path)
 
         im.close()
+
+# #Martin
+# def resize_ndpi(im_path):
+
+#     im = ops.OpenSlide(im_path.as_posix())
+
+#     dimlvl = im.level_dimensions
+
+#     im_downscale = im.read_region((0, 0), 3 , dimlvl[3])
+
+#     im_downscale.save(im_path.parent / f'{im_path.stem}.tiff')
+
+
+    
 
