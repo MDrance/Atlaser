@@ -1290,47 +1290,53 @@ class SliceImage(QtCore.QObject):
 
         pass
 
-    #Martin
-    def open_whole_img(self):
+    # #Martin
+    # def open_whole_img(self):
 
-        channel = ["DAPI", "TRITC"]
+    #     channel = ["DAPI", "TRITC"]
 
-        if self._prms == {}:
+    #     if self._prms == {}:
 
-            self._prms = nz.parse_ndpis(self.path)
+    #         self._prms = nz.parse_ndpis(self.path)
 
-            images = [self._prms[f'Image{ix}'] for ix in range(int(self._prms['NoImages']))]
+    #         images = [self._prms[f'Image{ix}'] for ix in range(int(self._prms['NoImages']))]
 
-            self._ndpis_files = [self._prms['path'] / im for im in images]
+    #         self._ndpis_files = [self._prms['path'] / im for im in images]
 
-        parent_path = self.path.parent
+    #     parent_path = self.path.parent
 
-        img_name = self.path.stem
+    #     img_name = self.path.stem
 
-        base_path = parent_path / img_name
+    #     base_path = parent_path / img_name
 
-        if not base_path.is_dir():
+    #     if not base_path.is_dir():
 
-            base_path.mkdir()
+    #         base_path.mkdir()
         
-        channel_path_dapi = base_path / f'{channel[0]}'
+    #     channel_path_dapi = base_path / f'{channel[0]}'
 
-        if not channel_path_dapi.is_dir():
+    #     if not channel_path_dapi.is_dir():
 
-            channel_path_dapi.mkdir()
+    #         channel_path_dapi.mkdir()
 
-        channel_path_tritc = base_path / f'{channel[1]}'
+    #     channel_path_tritc = base_path / f'{channel[1]}'
 
-        if not channel_path_tritc.is_dir():
+    #     if not channel_path_tritc.is_dir():
 
-            channel_path_tritc.mkdir()
+    #         channel_path_tritc.mkdir()
 
-        crop_im = nz.crop_from_dapi(self._prms, res = 3)
+    #     crop_im = nz.crop_from_dapi(self._prms, res = 3)
 
-    #Martin
-    def open_ndpi(self):
+    # #Martin
+    # def open_ndpi(self):
         
-        nz.resize_ndpi(self.path)
+    #     nz.resize_ndpi(self.path)
+
+
+    # def crop_with_roi(self, roi, im):
+    #     return
+        
+
 
 
 

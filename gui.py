@@ -30,6 +30,8 @@ from controls import TreeModel, LabeledSlider, EditViewBox, Transform, SliceImag
 
 from atlas import read_ontology, id_colors, color_atlas, get_atlas
 
+import nanozoomer as nz
+
 try:
 
     import javabridge
@@ -104,9 +106,9 @@ class Viewer(QtWidgets.QMainWindow):
 
         self.edit_menu.addAction('Clear cells', self.clear_cells)
 
-        self.edit_menu.addAction('Select tool', self.select_tool)
+        # self.edit_menu.addAction('Select tool', self.select_tool)
 
-        self.edit_menu.addAction('Crop from ROI', self.crop_from_roi)
+        # self.edit_menu.addAction('Crop from ROI', self.crop_from_roi)
 
         self.help_menu = QtWidgets.QMenu('&Help', self)
 
@@ -1186,40 +1188,43 @@ class AtlasExplorer(Viewer):
         self.anat_image.setLevels((0, self.slice_image.p_max * (2 - value / 50)))
 
 
-    # #Martin 
-    def update(self, roi):    
-        roidata = []
-        roidata.append(roi.pos())
-        roidata.append(roi.size())
-
-    #Martin
-    def select_tool(self):
-
-        #Création de l'outil de selection, sur l'image et d'une taille correcte
-        myROI = pg.ROI([1000,1000], [500,500])
-
-        #Ajout de l'outil sur la fenetre qui contient l'image
-        self.vb_anat.addItem(myROI)
-
-        #Gère le scaling horizontal
-        myROI.addScaleHandle([1, 0.5], [0.5, 0.5])
-        myROI.addScaleHandle([0, 0.5], [0.5, 0.5])
-
-        #Gère le scaling vertical
-        myROI.addScaleHandle([0.5, 0], [0.5, 1])
-        myROI.addScaleHandle([0.5, 1], [0.5, 0])
-
-        #Gère le scaling horizontal et vertical
-        myROI.addScaleHandle([1, 1], [0, 0])
-        myROI.addScaleHandle([0, 0], [1, 1])
-
-        myROI.sigRegionChanged.connect(self.update)
-
-        self.myROIdata = self.update(myROI)
+    # # #Martin 
+    # def update(self, roi):    
+    #     roidata = []
+    #     roidata.append(roi.pos())
+    #     roidata.append(roi.size() * 8)
+    #     self.myROIdata = roidata
+    #     print (self.myROIdata)
 
 
-    def crop_from_roi(self):
-        return
+    # #Martin
+    # def select_tool(self):
+
+    #     #Création de l'outil de selection, sur l'image et d'une taille correcte
+    #     myROI = pg.ROI([1000,1000], [350,500])
+
+    #     #Ajout de l'outil sur la fenetre qui contient l'image
+    #     self.vb_anat.addItem(myROI)
+
+    #     #Gère le scaling horizontal
+    #     myROI.addScaleHandle([1, 0.5], [0.5, 0.5])
+    #     myROI.addScaleHandle([0, 0.5], [0.5, 0.5])
+
+    #     #Gère le scaling vertical
+    #     myROI.addScaleHandle([0.5, 0], [0.5, 1])
+    #     myROI.addScaleHandle([0.5, 1], [0.5, 0])
+
+    #     #Gère le scaling horizontal et vertical
+    #     myROI.addScaleHandle([1, 1], [0, 0])
+    #     myROI.addScaleHandle([0, 0], [1, 1])
+
+    #     myROI.sigRegionChanged.connect(self.update)
+
+    #     self.update(myROI)
+
+
+    # def crop_from_roi(self):
+    #     return
 
 
 
