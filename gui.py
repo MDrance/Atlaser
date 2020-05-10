@@ -105,7 +105,9 @@ class Viewer(QtWidgets.QMainWindow):
         self.edit_menu.addAction('Clear cells', self.clear_cells)
 
         self.edit_menu.addAction('Select tool', self.select_tool)
-        
+
+        self.edit_menu.addAction('Crop from ROI', self.crop_from_roi)
+
         self.help_menu = QtWidgets.QMenu('&Help', self)
 
         self.help_menu.addAction('&Manuel', self.help, QtCore.Qt.CTRL + QtCore.Qt.Key_H)
@@ -602,6 +604,9 @@ class Viewer(QtWidgets.QMainWindow):
 
         pass
 
+    def crop_from_roi(self):
+
+        pass
 
 
     def expanded(self, index):
@@ -777,6 +782,8 @@ class AtlasExplorer(Viewer):
         self.setWindowTitle('Atlaser Sotfware')
 
         self.help_menu = None
+
+        self.myROIdata = []
 
 
 
@@ -1179,22 +1186,17 @@ class AtlasExplorer(Viewer):
         self.anat_image.setLevels((0, self.slice_image.p_max * (2 - value / 50)))
 
 
-    #Martin 
-
-    def updateROI(self, roi):
-        self.slice_image.raw_image.setImage(roi.getArrayRegion(arr, self.slice_image.raw_image), levels=(0, arr.max()))
+    # #Martin 
+    def update(self, roi):    
+        roidata = []
+        roidata.append(roi.pos())
+        roidata.append(roi.size())
 
     #Martin
     def select_tool(self):
 
-        #Liste qui contiendra les infos de la ROI à retenir
-        rois = []
-        
         #Création de l'outil de selection, sur l'image et d'une taille correcte
-        myROI = pg.ROI([1000,1000], [1000,1000])
-
-        rois.append(myROI)
-
+        myROI = pg.ROI([1000,1000], [500,500])
 
         #Ajout de l'outil sur la fenetre qui contient l'image
         self.vb_anat.addItem(myROI)
@@ -1211,11 +1213,13 @@ class AtlasExplorer(Viewer):
         myROI.addScaleHandle([1, 1], [0, 0])
         myROI.addScaleHandle([0, 0], [1, 1])
 
-        for roi in rois:
-            roi.sigRegionChanged.connect(update)
-            self.vb_anat.addItem(roi)
+        myROI.sigRegionChanged.connect(self.update)
 
-        self.updateROI(rois[-1])
+        self.myROIdata = self.update(myROI)
+
+
+    def crop_from_roi(self):
+        return
 
 
 
