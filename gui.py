@@ -1277,7 +1277,7 @@ class AtlasExplorer(Viewer):
         self.anat_image.setLevels((0, self.slice_image.p_max * (2 - value / 50)))
 
 
-    # # #Martin 
+    # #Martin 
     # def update(self, roi):    
     #     roidata = []
     #     roidata.append(roi.pos())
@@ -1311,7 +1311,7 @@ class AtlasExplorer(Viewer):
 
     #     self.update(myROI)
 
-
+    # #Martin
     # def crop_from_roi(self):
     #     return
 

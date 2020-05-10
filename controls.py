@@ -1320,7 +1320,7 @@ class SliceImage(QtCore.QObject):
         
     #     nz.resize_ndpi(self.path)
 
-
+    # #Martin
     # def crop_with_roi(self, roi, im):
     #     return
         
