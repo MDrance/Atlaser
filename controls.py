@@ -12,10 +12,6 @@ from pathlib import Path
 
 from PIL import Image
 
-from skimage.util import img_as_uint
-
-from skimage.color import rgb2gray
-
 import nanozoomer as nz
 
 try:
@@ -1095,16 +1091,16 @@ class SliceImage(QtCore.QObject):
             self.load_slide_scanner_image()
 
             self.stack_loader = self.vsi_stack_loader
-        #Martin
-        # elif self.path.suffix in {'.ndpis'}:
 
-        #    self.open_whole_img()
+        elif self.path.suffix in {'.ndpis'}:
 
-        # elif self.path.suffix in {'.ndpi'}:
-            
-        #     self.open_ndpi()
+            self.stack_loader = self.ndpis_stack_loader
 
-        # self.p_max = self.pic.max()
+            self._is_ndpis = True
+
+            self.ndpis_stack_loader(0, 4, 0, 0)
+
+        self.p_max = self.pic.max()
 
 
 
@@ -1275,56 +1271,5 @@ class SliceImage(QtCore.QObject):
     def default_stack_loader(self, z, res, channel, brain_slice=None):
 
         pass
-
-    # #Martin
-    # def open_whole_img(self):
-
-    #     channel = ["DAPI", "TRITC"]
-
-    #     if self._prms == {}:
-
-    #         self._prms = nz.parse_ndpis(self.path)
-
-    #         images = [self._prms[f'Image{ix}'] for ix in range(int(self._prms['NoImages']))]
-
-    #         self._ndpis_files = [self._prms['path'] / im for im in images]
-
-    #     parent_path = self.path.parent
-
-    #     img_name = self.path.stem
-
-    #     base_path = parent_path / img_name
-
-    #     if not base_path.is_dir():
-
-    #         base_path.mkdir()
-        
-    #     channel_path_dapi = base_path / f'{channel[0]}'
-
-    #     if not channel_path_dapi.is_dir():
-
-    #         channel_path_dapi.mkdir()
-
-    #     channel_path_tritc = base_path / f'{channel[1]}'
-
-    #     if not channel_path_tritc.is_dir():
-
-    #         channel_path_tritc.mkdir()
-
-    #     crop_im = nz.crop_from_dapi(self._prms, res = 3)
-
-    # #Martin
-    # def open_ndpi(self):
-        
-    #     nz.resize_ndpi(self.path)
-
-    # #Martin
-    # def crop_with_roi(self, roi, im):
-    #     return
-        
-
-
-
-
 
 
